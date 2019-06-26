@@ -14,18 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:14.04
+ARG UBUNTU_RELEASE=xenial
+ARG UBUNTU_VERSION=16.04
+
+FROM ubuntu:${UBUNTU_VERSION}
+
+ARG UBUNTU_RELEASE
 
 ENV REBUILD_COUNTER=1
 ENV QT5_VERSION=qt510
-ENV QT5_PPA_VERSION=qt-5.10.1
+ENV QT5_PPA_VERSION=qt-5.10.1-${UBUNTU_RELEASE}
 
 RUN set -x \
     && apt-get update -y \
     && apt-get -y install --no-install-recommends software-properties-common
 
 RUN set -x \
-    && add-apt-repository ppa:beineri/opt-${QT5_PPA_VERSION}-trusty \
+    && add-apt-repository ppa:beineri/opt-${QT5_PPA_VERSION} \
     && add-apt-repository ppa:phoerious/keepassxc
 
 RUN set -x \
@@ -35,18 +40,16 @@ RUN set -x \
         build-essential \
         clang-3.6 \
         clang-format-3.6 \
-        cmake3 \
+        cmake \
         curl \
         fuse \
         git \
-        # gosu \
+        gosu \
         libargon2-0-dev \
         libclang-common-3.6-dev \
-        libcurl-no-gcrypt-dev \
         libgcrypt20-18-dev \
         libqrencode-dev \
-        # ubuntu:14.04 has no quazip (it's optional)
-        # libquazip5-dev \
+        libquazip5-dev \
         libsodium-dev \
         libxi-dev \
         libxtst-dev \
@@ -66,13 +69,6 @@ RUN set -x \
         zlib1g-dev \
     && apt-get autoremove --purge \
     && rm -rf /var/lib/apt/lists/*
-
-# ubuntu:14:04 has no gosu
-RUN set -x \
-    && git clone https://github.com/ncopa/su-exec.git \
-    && (cd su-exec; make) \
-    && mv su-exec/su-exec /usr/bin/su-exec \
-    && rm -rf su-exec
 
 RUN set -x && locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
